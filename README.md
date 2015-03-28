@@ -10,8 +10,11 @@
 
 requisitos:
 -python-opencv (Descargado desde el gestor de paquetes del sistema operativo)
+
 -pybrain
+
 -scipy (dependencia de pybrain)
+
 -numpy (dependencia de pybrain)
 
 Se incluyeron scipy, pybrain y numpy dentro del proyecto pero para cualquier incoveniencia mejor descargarlos utilizando el paquete respectivo dentro del sistema operativo
