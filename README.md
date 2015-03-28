@@ -1,5 +1,20 @@
-# Pick-a-number
+# Pick-a-number 
 
+#Preferiblemente correr este programa en linux
+
+Como utilizar:
+--------------
+Luego de instalar requisitos:
+	Desde el directorio Pick-a-number usar los siguientes comandos:
+	
+	python main.py
+
+	Despues de que la red entrene se le pedira la ruta de la imagen a procesar
+	esta debe ser de 10*10px se incluyen varias imagenes para probar en la carpeta
+	prueba (estas imagenes son diferentes de las de entrenamiento) si la imagen esta en la carpeta desde donde se ejecuto main.py simplemente escribir
+	 <nombre de imagen>.pbm en caso contrario poner direccion de la imagen completa.  
+
+--------------------------------------------------------------
 -Se utilizó una red Perceptron multicapa, utilizando Sigmoides como función de activación en la capa oculta.
 
 -La imagen de entrada se representó con una matriz que luego fue convertida a arreglo, donde cada elemento de dicho arreglo es un parametro de entrada. Se llegó a esta decisión al pensar en evaluar todos los elementos de la matriz en la misma capa.
@@ -8,14 +23,14 @@
 
 -Se dispusieron de 1/3 del número de neuronas de entrada como neuronas ocultas. Al principio se utilizó el mismo número de neuronas de entrada pero el porcentaje de probabilidad era muy bajo, y al colocar 1/10 el algoritmo se tardaba mucho en dar un estimado. Al colocar 1/3 obtenemos un porcentaje aceptable de éxitos sin mucho tiempo de procesamiento.
 
-REQUISITOS:
+
+REQUISITOS: (Modulos de python)
+
 
 python-opencv (Descargado desde el gestor de paquetes del sistema operativo)
 
-pybrain
+pybrain 
 
-scipy (dependencia de pybrain)
+scipy (dependencia de pybrain) 
 
 numpy (dependencia de pybrain)
-
-Se incluyeron scipy, pybrain y numpy dentro del proyecto pero para cualquier incoveniencia mejor descargarlos utilizando el paquete respectivo dentro del sistema operativo
