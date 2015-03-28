@@ -140,3 +140,6 @@ if __name__ == '__main__':
             if i==elemento:
                 print "Prediccion: ",iter
             iter+=1
+        if raw_input("\n1:Seguir-probando  __ OtroSimbolo:Parar ::")!="1":
+          break
+        print("\n")
