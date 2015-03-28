@@ -85,16 +85,12 @@ def vectorize(x):
     return result
 
 def classify(imSize, dataset, hidden_neurons, initial_error):
-    print("Capas de entrada: %i" % imSize) #numero de layouts de entrada, tiende a ser wxh de la imagen
+    #print("Capas de entrada: %i" % imSize) #numero de layouts de entrada, tiende a ser wxh de la imagen
 
-    #tstdata, trndata = dataset.splitWithProportion( 0.25 )
-    #nos da una proporcion de data de entrenamiento de .75 y prueba .25
+    tstdata, trndata = dataset.splitWithProportion( 0.25 )
+    # nos da una proporcion de data de entrenamiento de .75 y prueba .25
 
-    #imSize es el tamano de las capas de entrada
-    #el siguiente parametro es el de las capas ocultas
-    #y el ultimo es las capas de salida que debe haber
-    #net = buildNetwork(imSize, imSize/3, 1)
-
+    # imSize es el tamano de las capas de entrada
     # define layer structures
     inLayer = LinearLayer(imSize)
     hiddenLayer = SigmoidLayer(imSize/3)
@@ -133,8 +129,9 @@ def classify(imSize, dataset, hidden_neurons, initial_error):
     while error > 0.001:
         error = trainer.train()
         iteration += 1
-        print "Iteration: {0} Error {1}".format(iteration, error)
-
+        #print "Iteration: {0} Error {1}".format(iteration, error)
+    print "Terminado luego de: ",iteration," iteraciones"
+    print "Con un error de: ",error
     return fnn
     #return net
 
@@ -142,8 +139,9 @@ def classify(imSize, dataset, hidden_neurons, initial_error):
 if __name__ == '__main__':
     #cargar toda la data en una variable alldata
     imSize = len(load_image(os.path.join('data','size.pbm')))
+    print "Cargando datos..."
     alldata = load_data(imSize)
-
+    print "Entrenando red..."
     number = classify(imSize,alldata,imSize,10)
 
     ruta = raw_input("Introduzca ruta del archivo:\n")
