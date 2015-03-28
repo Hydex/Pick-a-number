@@ -13,48 +13,49 @@ import os
 import cv2
 
 def load_data(size):
-    ds = SupervisedDataSet(size, 1)
+    #10 clases porque son 10 numeros
+    ds = ClassificationDataSet(size, 1, nb_classes=10,class_labels=['0','1','2','3','4','5','6','7','8','9'])
     #Agregando todos los elementos 0
     t = os.listdir(os.path.join('data','0'))
     for file in t:
         temp = os.path.join('data','0',file)
-        ds.addSample(load_image(temp),(0,))
+        ds.addSample(load_image(temp),[0])
     t = os.listdir(os.path.join('data','1'))
     for file in t:
         temp = os.path.join('data','1',file)
-        ds.addSample(load_image(temp),(1,))
+        ds.addSample(load_image(temp),[1])
     t = os.listdir(os.path.join('data','2'))
     for file in t:
         temp = os.path.join('data','2',file)
-        ds.addSample(load_image(temp),(2,))
+        ds.addSample(load_image(temp),[2])
     t = os.listdir(os.path.join('data','3'))
     for file in t:
         temp = os.path.join('data','3',file)
-        ds.addSample(load_image(temp),(3,))
+        ds.addSample(load_image(temp),[3])
     t = os.listdir(os.path.join('data','4'))
     for file in t:
         temp = os.path.join('data','4',file)
-        ds.addSample(load_image(temp),(4,))
+        ds.addSample(load_image(temp),[4])
     t = os.listdir(os.path.join('data','5'))
     for file in t:
         temp = os.path.join('data','5',file)
-        ds.addSample(load_image(temp),(5,))
+        ds.addSample(load_image(temp),[5])
     t = os.listdir(os.path.join('data','6'))
     for file in t:
         temp = os.path.join('data','6',file)
-        ds.addSample(load_image(temp),(6,))
+        ds.addSample(load_image(temp),[6])
     t = os.listdir(os.path.join('data','7'))
     for file in t:
         temp = os.path.join('data','7',file)
-        ds.addSample(load_image(temp),(7,))
+        ds.addSample(load_image(temp),[7])
     t = os.listdir(os.path.join('data','8'))
     for file in t:
         temp = os.path.join('data','8',file)
-        ds.addSample(load_image(temp),(8,))
+        ds.addSample(load_image(temp),[8])
     t = os.listdir(os.path.join('data','9'))
     for file in t:
         temp = os.path.join('data','9',file)
-        ds.addSample(load_image(temp),(9,))
+        ds.addSample(load_image(temp),[9])
 
     """
     ds.addSample(load_image('0.pbm'),(0,))
@@ -85,7 +86,6 @@ def vectorize(x):
 
 def classify(imSize, dataset, hidden_neurons, initial_error):
     print("Capas de entrada: %i" % imSize) #numero de layouts de entrada, tiende a ser wxh de la imagen
-    CLASSES = 10 #10 clases porque son 10 numeros
 
     #tstdata, trndata = dataset.splitWithProportion( 0.25 )
     #nos da una proporcion de data de entrenamiento de .75 y prueba .25
@@ -93,13 +93,39 @@ def classify(imSize, dataset, hidden_neurons, initial_error):
     #imSize es el tamano de las capas de entrada
     #el siguiente parametro es el de las capas ocultas
     #y el ultimo es las capas de salida que debe haber
-    net = buildNetwork(imSize, imSize/3, 1)
+    #net = buildNetwork(imSize, imSize/3, 1)
+
+    # define layer structures
+    inLayer = LinearLayer(imSize)
+    hiddenLayer = SigmoidLayer(imSize/3)
+    outLayer = SoftmaxLayer(1)
+
+    # add layers to network
+    net = FeedForwardNetwork()
+    net.addInputModule(inLayer)
+    net.addModule(hiddenLayer)
+    net.addOutputModule(outLayer)
+
+    # define conncections for network
+    theta1 = FullConnection(inLayer, hiddenLayer)
+    theta2 = FullConnection(hiddenLayer, outLayer)
+
+    # add connections to network
+    net.addConnection(theta1)
+    net.addConnection(theta2)
+
+    # sort module
+    net.sortModules()
+
+    dataset._convertToOneOfMany( )
+
+    fnn = buildNetwork( dataset.indim, imSize/3, dataset.outdim, outclass=SoftmaxLayer )
 
     #fnn = buildNetwork(trndata.indim, hidden_neurons, trndata.outdim,
     #                   outclass=SoftmaxLayer)
 
     #Creamos un entrenador de retropropagacion usando el dataset y la red
-    trainer = BackpropTrainer(net, dataset)
+    trainer = BackpropTrainer(fnn, dataset)
     #trainer = BackpropTrainer(fnn, trndata)
     error = initial_error
     iteration = 0
@@ -109,8 +135,8 @@ def classify(imSize, dataset, hidden_neurons, initial_error):
         iteration += 1
         print "Iteration: {0} Error {1}".format(iteration, error)
 
-    #return fnn
-    return net
+    return fnn
+    #return net
 
 
 if __name__ == '__main__':
@@ -121,5 +147,14 @@ if __name__ == '__main__':
     number = classify(imSize,alldata,imSize,10)
 
     ruta = raw_input("Introduzca ruta del archivo:\n")
-
-    print "Result: ", number.activate(load_image(ruta))
+    #print type(number.activate(load_image(ruta)))
+    #print number.activate(load_image(ruta))
+    #print number
+    resultado = number.activate(load_image(ruta))
+    elemento = max(resultado)
+    #print "Result: ", max(number.activate(load_image(ruta)))
+    iter = 0
+    for i in resultado:
+        if i==elemento:
+            print "Result: ",iter
+        iter+=1
