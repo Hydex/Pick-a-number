@@ -6,80 +6,120 @@ from pybrain.datasets import ClassificationDataSet
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.structure.modules import SoftmaxLayer
 from pybrain.tools.shortcuts import buildNetwork
-from pybrain.utilities import percentError
+from pybrain.datasets.supervised import SupervisedDataSet
 
-def load_data(route):
-    return
+import os
 
-def classify(training, testing, HIDDEN_NEURONS, MOMENTUM, WEIGHTDECAY,
-             LEARNING_RATE, LEARNING_RATE_DECAY, EPOCHS):
-    INPUT_FEATURES = 0 #numero de layouts de entrada, tiende a ser wxh de la imagen
-    print("Input features: %i" % INPUT_FEATURES)
+import cv2
+
+def load_data(size):
+    ds = SupervisedDataSet(size, 1)
+    #Agregando todos los elementos 0
+    t = os.listdir(os.path.join('data','0'))
+    for file in t:
+        temp = os.path.join('data','0',file)
+        ds.addSample(load_image(temp),(0,))
+    t = os.listdir(os.path.join('data','1'))
+    for file in t:
+        temp = os.path.join('data','1',file)
+        ds.addSample(load_image(temp),(1,))
+    t = os.listdir(os.path.join('data','2'))
+    for file in t:
+        temp = os.path.join('data','2',file)
+        ds.addSample(load_image(temp),(2,))
+    t = os.listdir(os.path.join('data','3'))
+    for file in t:
+        temp = os.path.join('data','3',file)
+        ds.addSample(load_image(temp),(3,))
+    t = os.listdir(os.path.join('data','4'))
+    for file in t:
+        temp = os.path.join('data','4',file)
+        ds.addSample(load_image(temp),(4,))
+    t = os.listdir(os.path.join('data','5'))
+    for file in t:
+        temp = os.path.join('data','5',file)
+        ds.addSample(load_image(temp),(5,))
+    t = os.listdir(os.path.join('data','6'))
+    for file in t:
+        temp = os.path.join('data','6',file)
+        ds.addSample(load_image(temp),(6,))
+    t = os.listdir(os.path.join('data','7'))
+    for file in t:
+        temp = os.path.join('data','7',file)
+        ds.addSample(load_image(temp),(7,))
+    t = os.listdir(os.path.join('data','8'))
+    for file in t:
+        temp = os.path.join('data','8',file)
+        ds.addSample(load_image(temp),(8,))
+    t = os.listdir(os.path.join('data','9'))
+    for file in t:
+        temp = os.path.join('data','9',file)
+        ds.addSample(load_image(temp),(9,))
+
+    """
+    ds.addSample(load_image('0.pbm'),(0,))
+    ds.addSample(load_image('1.pbm'),(1,))
+    ds.addSample(load_image('2.pbm'),(2,))
+    ds.addSample(load_image('3.pbm'),(3,))
+    ds.addSample(load_image('4.pbm'),(4,))
+    ds.addSample(load_image('5.pbm'),(5,))
+    ds.addSample(load_image('6.pbm'),(6,))
+    ds.addSample(load_image('7.pbm'),(7,))
+    ds.addSample(load_image('8.pbm'),(8,))
+    ds.addSample(load_image('9.pbm'),(9,))
+    """
+    return ds
+
+def load_image(path):
+    im = cv2.imread(path)
+    return vectorize(im)
+
+def vectorize(x):
+    result = []
+    for el in x:
+        if hasattr(el, "__iter__") and not isinstance(el, basestring):
+            result.extend(vectorize(el))
+        else:
+            result.append(el)
+    return result
+
+def classify(imSize, dataset, hidden_neurons, initial_error):
+    print("Capas de entrada: %i" % imSize) #numero de layouts de entrada, tiende a ser wxh de la imagen
     CLASSES = 10 #10 clases porque son 10 numeros
-    trndata = ClassificationDataSet(INPUT_FEATURES, 1, nb_classes=CLASSES)
-    tstdata = ClassificationDataSet(INPUT_FEATURES, 1, nb_classes=CLASSES)
 
-    #en este segmento se agregan los samples de training y test
-    for i in range(len(testing['x'])):
-        tstdata.addSample(ravel(testing['x'][i]), [testing['y'][i]])
-    for i in range(len(training['x'])):
-        trndata.addSample(ravel(training['x'][i]), [training['y'][i]])
+    #tstdata, trndata = dataset.splitWithProportion( 0.25 )
+    #nos da una proporcion de data de entrenamiento de .75 y prueba .25
 
-    # This is necessary, but I don't know why
-    trndata._convertToOneOfMany()
-    tstdata._convertToOneOfMany()
+    #imSize es el tamano de las capas de entrada
+    #el siguiente parametro es el de las capas ocultas
+    #y el ultimo es las capas de salida que debe haber
+    net = buildNetwork(imSize, imSize/3, 1)
 
-    fnn = buildNetwork(trndata.indim, HIDDEN_NEURONS, trndata.outdim,
-                       outclass=SoftmaxLayer)
+    #fnn = buildNetwork(trndata.indim, hidden_neurons, trndata.outdim,
+    #                   outclass=SoftmaxLayer)
 
-    trainer = BackpropTrainer(fnn, dataset=trndata, momentum=MOMENTUM,
-                              verbose=True, weightdecay=WEIGHTDECAY,
-                              learningrate=LEARNING_RATE,
-                              lrdecay=LEARNING_RATE_DECAY)
-    for i in range(EPOCHS):
-        trainer.trainEpochs(1)
-        trnresult = percentError(trainer.testOnClassData(),
-                                 trndata['class'])
-        tstresult = percentError(trainer.testOnClassData(
-                                 dataset=tstdata), tstdata['class'])
-        #El ciclo deberia detenerse al obtener <=95%
-        print("epoch: %4d" % trainer.totalepochs,
-                     "  train error: %5.2f%%" % trnresult,
-                     "  test error: %5.2f%%" % tstresult)
-    return fnn
+    #Creamos un entrenador de retropropagacion usando el dataset y la red
+    trainer = BackpropTrainer(net, dataset)
+    #trainer = BackpropTrainer(fnn, trndata)
+    error = initial_error
+    iteration = 0
+    #iteramos mientras el error sea menor 0.001
+    while error > 0.001:
+        error = trainer.train()
+        iteration += 1
+        print "Iteration: {0} Error {1}".format(iteration, error)
+
+    #return fnn
+    return net
 
 
 if __name__ == '__main__':
+    #cargar toda la data en una variable alldata
+    imSize = len(load_image(os.path.join('data','size.pbm')))
+    alldata = load_data(imSize)
+
+    number = classify(imSize,alldata,imSize,10)
+
     ruta = raw_input("Introduzca ruta del archivo:\n")
-    print ruta
-    ruta_test = ""
-    ruta_training = ""
-    testing = load_data(ruta_test)
-    training = load_data(ruta_training)
-    imagen = load_data(ruta)
-    #classify()
-    #compare()
 
-"""
-#primitivas a usar probablemente
-n = FeedForwardNetwork()
-inLayer = LinearLayer(2)
-hiddenLayer = SigmoidLayer(3)
-outLayer = LinearLayer(1)
-n.addInputModule(inLayer)
-n.addModule(hiddenLayer)
-n.addOutputModule(outLayer)
-
-in_to_hidden = FullConnection(inLayer, hiddenLayer)
-hidden_to_out = FullConnection(hiddenLayer, outLayer)
-
-#lo malo de esto es que no se contempla la subida de archivos
-
-n.addConnection(in_to_hidden)
-n.addConnection(hidden_to_out)
-
-n.sortModules()
-print n
-
-n.activate([1, 2])
-"""
+    print "Result: ", number.activate(load_image(ruta))
