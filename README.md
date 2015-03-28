@@ -9,9 +9,9 @@
 -Se dispusieron de 1/3 del número de neuronas de entrada como neuronas ocultas. Al principio se utilizó el mismo número de neuronas de entrada pero el porcentaje de probabilidad era muy bajo, y al colocar 1/10 el algoritmo se tardaba mucho en dar un estimado. Al colocar 1/3 obtenemos un porcentaje aceptable de éxitos sin mucho tiempo de procesamiento.
 
 requisitos:
-python-opencv (Descargado desde el gestor de paquetes del sistema operativo)
-pybrain
-scipy (dependencia de pybrain)
-numpy (dependencia de pybrain)
+-python-opencv (Descargado desde el gestor de paquetes del sistema operativo)
+-pybrain
+-scipy (dependencia de pybrain)
+-numpy (dependencia de pybrain)
 
 Se incluyeron scipy, pybrain y numpy dentro del proyecto pero para cualquier incoveniencia mejor descargarlos utilizando el paquete respectivo dentro del sistema operativo
