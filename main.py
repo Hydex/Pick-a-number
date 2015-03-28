@@ -56,19 +56,6 @@ def load_data(size):
     for file in t:
         temp = os.path.join('data','9',file)
         ds.addSample(load_image(temp),[9])
-
-    """
-    ds.addSample(load_image('0.pbm'),(0,))
-    ds.addSample(load_image('1.pbm'),(1,))
-    ds.addSample(load_image('2.pbm'),(2,))
-    ds.addSample(load_image('3.pbm'),(3,))
-    ds.addSample(load_image('4.pbm'),(4,))
-    ds.addSample(load_image('5.pbm'),(5,))
-    ds.addSample(load_image('6.pbm'),(6,))
-    ds.addSample(load_image('7.pbm'),(7,))
-    ds.addSample(load_image('8.pbm'),(8,))
-    ds.addSample(load_image('9.pbm'),(9,))
-    """
     return ds
 
 def load_image(path):
@@ -85,7 +72,6 @@ def vectorize(x):
     return result
 
 def classify(imSize, dataset, hidden_neurons, initial_error):
-    #print("Capas de entrada: %i" % imSize) #numero de layouts de entrada, tiende a ser wxh de la imagen
 
     tstdata, trndata = dataset.splitWithProportion( 0.25 )
     # nos da una proporcion de data de entrenamiento de .75 y prueba .25
@@ -117,24 +103,19 @@ def classify(imSize, dataset, hidden_neurons, initial_error):
 
     fnn = buildNetwork( dataset.indim, imSize/3, dataset.outdim, outclass=SoftmaxLayer )
 
-    #fnn = buildNetwork(trndata.indim, hidden_neurons, trndata.outdim,
-    #                   outclass=SoftmaxLayer)
-
     #Creamos un entrenador de retropropagacion usando el dataset y la red
     trainer = BackpropTrainer(fnn, dataset)
-    #trainer = BackpropTrainer(fnn, trndata)
+
     error = initial_error
     iteration = 0
     #iteramos mientras el error sea menor 0.001
-    while error > 0.001:
+    while error > 0.01:
         error = trainer.train()
         iteration += 1
         #print "Iteration: {0} Error {1}".format(iteration, error)
     print "Terminado luego de: ",iteration," iteraciones"
     print "Con un error de: ",error
     return fnn
-    #return net
-
 
 if __name__ == '__main__':
     #cargar toda la data en una variable alldata
@@ -142,17 +123,20 @@ if __name__ == '__main__':
     print "Cargando datos..."
     alldata = load_data(imSize)
     print "Entrenando red..."
-    number = classify(imSize,alldata,imSize,10)
-
-    ruta = raw_input("Introduzca ruta del archivo:\n")
-    #print type(number.activate(load_image(ruta)))
-    #print number.activate(load_image(ruta))
-    #print number
-    resultado = number.activate(load_image(ruta))
-    elemento = max(resultado)
-    #print "Result: ", max(number.activate(load_image(ruta)))
-    iter = 0
-    for i in resultado:
-        if i==elemento:
-            print "Result: ",iter
-        iter+=1
+    final_net = classify(imSize,alldata,imSize,10)
+    classes = ['0','1','2','3','4','5','6','7','8','9']
+    while True:
+        ruta = raw_input("Introduzca ruta del archivo:\n")
+        #print type(final_net.activate(load_image(ruta)))
+        #print final_net.activate(load_image(ruta))
+        resultado = final_net.activate(load_image(ruta))
+        elemento = max(resultado)
+        #print "Result: ", max(final_net.activate(load_image(ruta)))
+        iter = 0
+        #class_index = max(xrange(len(resultado)), key=resultado.__getitem__)
+        #class_name = classes[class_index]
+        #print class_name
+        for i in resultado:
+            if i==elemento:
+                print "Prediccion: ",iter
+            iter+=1
