@@ -60,6 +60,8 @@ def load_data(size):
 
 def load_image(path):
     im = cv2.imread(path)
+    if im== None:
+      return 0
     return vectorize(im)
 
 def vectorize(x):
@@ -122,14 +124,18 @@ if __name__ == '__main__':
     imSize = len(load_image(os.path.join('data','size.pbm')))
     print "Cargando datos..."
     alldata = load_data(imSize)
-    print "Entrenando red..."
+    print "Entrenando red... (puede tardar unos 2 minutos)"
     final_net = classify(imSize,alldata,imSize,10)
     classes = ['0','1','2','3','4','5','6','7','8','9']
     while True:
-        ruta = raw_input("Introduzca ruta del archivo:\n")
-        #print type(final_net.activate(load_image(ruta)))
-        #print final_net.activate(load_image(ruta))
-        resultado = final_net.activate(load_image(ruta))
+        imagen=0
+        while imagen==0:
+          ruta = raw_input("Introduzca ruta del archivo:\n")
+          imagen=load_image(ruta)
+          if imagen != 0:
+            resultado = final_net.activate(imagen)
+            break
+          print "Problema con la ruta introducida, corrija e ingrese nuevamente\n"
         elemento = max(resultado)
         #print "Result: ", max(final_net.activate(load_image(ruta)))
         iter = 0
@@ -140,6 +146,9 @@ if __name__ == '__main__':
             if i==elemento:
                 print "Prediccion: ",iter
             iter+=1
-        if raw_input("\n1:Seguir-probando  __ OtroSimbolo:Parar ::")!="1":
-          break
-        print("\n")
+        if raw_input("\n Para seguir presione ENTER\n Para salir presione <key>*+ENTER\n")!='':
+          if raw_input("Saldra de la aplicacion esta seguro? (y,n): ")=="y":
+              break
+          else : 
+            print "\nSiguiendo con la aplicacion"
+        print "\n"
